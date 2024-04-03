@@ -4,7 +4,6 @@ var waypoints = [];
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Define a variable for the current location marker so it can be updated
     var currentLocationMarker;
     var pathPolylines = [];
 
@@ -37,13 +36,77 @@ var waypoints = [];
     document.addEventListener('DOMContentLoaded', function() {
         getCurrentLocation();
     });
-
+    function placeCurrentLocationMarker(latlng) {
+        if (currentLocationMarker) {
+            currentLocationMarker.setLatLng(latlng);
+        } else {
+            currentLocationMarker = L.marker(latlng, { zIndexOffset: 1000 }).addTo(map);
+        }
+        map.panTo(latlng);
+        updateWaypointsDisplay();
+        drawPath();
+    
+        // Update the current location display
+        document.getElementById('currentLocation').innerHTML = 'Current Location: ' + latlng.lat.toFixed(5) + ', ' + latlng.lng.toFixed(5);
+    }
+    
     map.on('click', function onMapClick(e) {
         var newWaypoint = { lat: e.latlng.lat, lng: e.latlng.lng };
         waypoints.push(newWaypoint);
         updateWaypointsDisplay();
         drawPath();
     });
+
+
+    function addCustomWaypoint() {
+        // Retrieve and parse latitude and longitude values
+        var lat = parseFloat(document.getElementById('latitude').value);
+        var lng = parseFloat(document.getElementById('longitude').value);
+    
+        // Validate the coordinates
+        if (isNaN(lat) || lat < -90 || lat > 90 || isNaN(lng) || lng < -180 || lng > 180) {
+            alert("Please enter valid latitude and longitude values.");
+            return;
+        }
+    
+        // Prompt for additional waypoint details
+        var detail = prompt("Enter details for this waypoint (e.g., 'Survey' or 'Deliver Aid'):", "Survey");
+        if (!detail) {
+            return; // Exit if no detail is provided
+        }
+    
+        // Create a new waypoint object and marker
+        var newWaypoint = {
+            lat: lat,
+            lng: lng,
+            detail: detail,
+            marker: L.marker([lat, lng], {
+                title: detail
+            }).addTo(map).bindPopup(detail) // Add marker to the map
+        };
+    
+        // Push the new waypoint into the waypoints array
+        waypoints.push(newWaypoint);
+    
+        // Call functions to update the waypoints display list and redraw the path
+        updateWaypointsDisplay();
+        drawPath();
+    
+        // Optionally clear the input fields after adding the waypoint
+        document.getElementById('latitude').value = '';
+        document.getElementById('longitude').value = '';
+    }
+
+
+
+
+
+
+
+
+
+
+
 
     function updateWaypointsDisplay() {
         var waypointList = document.querySelector('.waypoint-list');

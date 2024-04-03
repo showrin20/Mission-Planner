@@ -6,3 +6,36 @@
     list-style-type: none;
   }
   
+
+
+  #waypoint-form {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Spacing between elements */
+    margin-top: 20px;
+  }
+  
+  #waypoint-form label {
+    font-weight: bold;
+  }
+  
+  #waypoint-form input[type="text"] {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+    width: 150px; /* Set a fixed width for the inputs */
+  }
+  
+  #waypoint-form button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  #waypoint-form button:hover {
+    background-color: #0056b3;
+  }
+  
