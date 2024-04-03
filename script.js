@@ -8,7 +8,6 @@ var waypoints = [];
     var currentLocationMarker;
     var pathPolylines = [];
 
-    // Function to place a marker on the current location
     function placeCurrentLocationMarker(latlng) {
         if (currentLocationMarker) {
             currentLocationMarker.setLatLng(latlng);
@@ -16,9 +15,9 @@ var waypoints = [];
             currentLocationMarker = L.marker(latlng, { zIndexOffset: 1000 }).addTo(map);
         }
         map.panTo(latlng);
+        updateWaypointsDisplay();
     }
 
-    // Function to get the current location and place a marker
     function getCurrentLocation() {
         if (!navigator.geolocation) {
             alert("Geolocation is not supported by your browser");
@@ -28,12 +27,13 @@ var waypoints = [];
             var latlng = L.latLng(position.coords.latitude, position.coords.longitude);
             placeCurrentLocationMarker(latlng);
             drawPath();
+            document.getElementById('locationStatus').style.display = 'none';
         }, function(error) {
             alert("Unable to retrieve your location due to " + error.message);
+            document.getElementById('locationStatus').innerText = 'Unable to find your location.';
         });
     }
 
-    // Call getCurrentLocation when the page loads
     document.addEventListener('DOMContentLoaded', function() {
         getCurrentLocation();
     });
@@ -48,23 +48,19 @@ var waypoints = [];
     function updateWaypointsDisplay() {
         var waypointList = document.querySelector('.waypoint-list');
         waypointList.innerHTML = '';
-        if(currentLocationMarker) {
+        if (currentLocationMarker) {
             var currentLatLng = currentLocationMarker.getLatLng();
             waypoints.forEach(function(wp, index) {
                 var waypointLatLng = L.latLng(wp.lat, wp.lng);
-                // Calculate distance in meters, then convert to kilometers
                 var distance = currentLatLng.distanceTo(waypointLatLng) / 1000;
-                // Format the distance to two decimal places
                 distance = distance.toFixed(2);
                 waypointList.innerHTML += '<li>Waypoint ' + (index + 1) + ': ' + wp.lat + ', ' + wp.lng +
                                           ' - ' + distance + ' km away</li>';
             });
         }
     }
-    
 
     function drawPath() {
-        // Clear the previous paths
         pathPolylines.forEach(function(polyline) {
             map.removeLayer(polyline);
         });
