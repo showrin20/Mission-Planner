@@ -118,7 +118,7 @@ var waypoints = [];
                 var distance = currentLatLng.distanceTo(waypointLatLng) / 1000;
                 distance = distance.toFixed(2);
                 waypointList.innerHTML += '<li>Waypoint ' + (index + 1) + ': ' + wp.lat + ', ' + wp.lng +
-                                          ' - ' + distance + ' km away</li>';
+                                          '. It is ' + distance + ' km away</li>';
             });
         }
     }
