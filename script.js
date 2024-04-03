@@ -1,5 +1,5 @@
 var waypoints = [];
-    var map = L.map('mapid').setView([40.7129822, -74.007205], 13);
+    var map = L.map('mapid').setView([23.684994, 90.356331], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
