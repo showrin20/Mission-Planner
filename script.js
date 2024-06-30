@@ -1,147 +1,100 @@
-var waypoints = [];
-    var map = L.map('mapid').setView([23.684994, 90.356331], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+// Create a map centered at the coastal area of Bangladesh, for example, near Bhola Island
+var map = L.map('map').setView([22.47, 90.70], 13); // Adjust the coordinates and zoom level
 
-    var currentLocationMarker;
-    var pathPolylines = [];
+// Add OpenStreetMap tile layer
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
 
-    function placeCurrentLocationMarker(latlng) {
-        if (currentLocationMarker) {
-            currentLocationMarker.setLatLng(latlng);
-        } else {
-            currentLocationMarker = L.marker(latlng, { zIndexOffset: 1000 }).addTo(map);
-        }
-        map.panTo(latlng);
-        updateWaypointsDisplay();
+// Function to generate random latitude and longitude within clusters around a specific range
+function getRandomLatLng(clusterCenter, clusterRadius) {
+    var angle = Math.random() * Math.PI * 2;
+    var radius = clusterRadius * Math.sqrt(Math.random());
+    var lat = clusterCenter.lat + radius * Math.cos(angle);
+    var lng = clusterCenter.lng + radius * Math.sin(angle);
+    return { lat: lat, lng: lng };
+}
+
+// Function to generate random risk and impact levels
+function getRandomRiskImpact() {
+    var risks = ['high', 'medium', 'low'];
+    var impacts = ['severe', 'moderate', 'low'];
+    var risk = risks[Math.floor(Math.random() * risks.length)];
+    var impact = impacts[Math.floor(Math.random() * impacts.length)];
+    return { risk: risk, impact: impact };
+}
+
+// Function to get color based on risk and impact
+function getColor(risk, impact) {
+    if (risk === 'high' && impact === 'severe') {
+        return 'red';
+    } else if (risk === 'medium' && impact === 'moderate') {
+        return 'orange';
+    } else if (risk === 'low' && impact === 'low') {
+        return 'green';
+    } else {
+        return 'blue'; // Default color
     }
+}
 
-    function getCurrentLocation() {
-        if (!navigator.geolocation) {
-            alert("Geolocation is not supported by your browser");
-            return;
-        }
-        navigator.geolocation.getCurrentPosition(function(position) {
-            var latlng = L.latLng(position.coords.latitude, position.coords.longitude);
-            placeCurrentLocationMarker(latlng);
-            drawPath();
-            document.getElementById('locationStatus').style.display = 'none';
-        }, function(error) {
-            alert("Unable to retrieve your location due to " + error.message);
-            document.getElementById('locationStatus').innerText = 'Unable to find your location.';
+// Define clusters with their centers and radius
+var clusters = [
+    { center: { lat: 22.47, lng: 90.70 }, radius: 0.02 },
+    { center: { lat: 22.44, lng: 90.68 }, radius: 0.02 },
+    { center: { lat: 22.49, lng: 90.72 }, radius: 0.02 }
+];
+
+// Generate random locations
+var locations = [];
+clusters.forEach(function(cluster) {
+    for (var i = 0; i < 20; i++) { // Generate 20 random locations per cluster
+        var randomLatLng = getRandomLatLng(cluster.center, cluster.radius);
+        var randomRiskImpact = getRandomRiskImpact();
+        locations.push({
+            lat: randomLatLng.lat,
+            lng: randomLatLng.lng,
+            risk: randomRiskImpact.risk,
+            impact: randomRiskImpact.impact
         });
     }
+});
 
-    document.addEventListener('DOMContentLoaded', function() {
-        getCurrentLocation();
+// Add markers to the map
+locations.forEach(function(location) {
+    var color = getColor(location.risk, location.impact);
+    L.circleMarker([location.lat, location.lng], {
+        radius: 10, // Larger radius for bigger markers
+        fillColor: color,
+        color: color,
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.8
+    }).addTo(map)
+    .bindPopup(`Risk: ${location.risk}<br>Impact: ${location.impact}`);
+});
+
+// Add a legend to the map
+var legend = L.control({position: 'bottomright'});
+
+legend.onAdd = function (map) {
+    var div = L.DomUtil.create('div', 'legend');
+    var grades = ['high-severe', 'medium-moderate', 'low-low'];
+    var labels = ['<strong>Risk & Impact</strong>'];
+    var colors = {
+        'high-severe': 'red',
+        'medium-moderate': 'orange',
+        'low-low': 'green'
+    };
+
+    grades.forEach(function(grade) {
+        labels.push(
+            '<i style="background:' + colors[grade] + '"></i> ' +
+            grade.replace('-', ' & ')
+        );
     });
-    function placeCurrentLocationMarker(latlng) {
-        if (currentLocationMarker) {
-            currentLocationMarker.setLatLng(latlng);
-        } else {
-            currentLocationMarker = L.marker(latlng, { zIndexOffset: 1000 }).addTo(map);
-        }
-        map.panTo(latlng);
-        updateWaypointsDisplay();
-        drawPath();
-    
-        // Update the current location display
-        document.getElementById('currentLocation').innerHTML = 'Current Location: ' + latlng.lat.toFixed(5) + ', ' + latlng.lng.toFixed(5);
-    }
-    
-    map.on('click', function onMapClick(e) {
-        var newWaypoint = { lat: e.latlng.lat, lng: e.latlng.lng };
-        waypoints.push(newWaypoint);
-        updateWaypointsDisplay();
-        drawPath();
-    });
 
+    div.innerHTML = labels.join('<br>');
+    return div;
+};
 
-    function addCustomWaypoint() {
-        // Retrieve and parse latitude and longitude values
-        var lat = parseFloat(document.getElementById('latitude').value);
-        var lng = parseFloat(document.getElementById('longitude').value);
-    
-        // Validate the coordinates
-        if (isNaN(lat) || lat < -90 || lat > 90 || isNaN(lng) || lng < -180 || lng > 180) {
-            alert("Please enter valid latitude and longitude values.");
-            return;
-        }
-    
-        // Prompt for additional waypoint details
-        var detail = prompt("Enter details for this waypoint (e.g., 'Survey' or 'Deliver Aid'):", "Survey");
-        if (!detail) {
-            return; // Exit if no detail is provided
-        }
-    
-        // Create a new waypoint object and marker
-        var newWaypoint = {
-            lat: lat,
-            lng: lng,
-            detail: detail,
-            marker: L.marker([lat, lng], {
-                title: detail
-            }).addTo(map).bindPopup(detail) // Add marker to the map
-        };
-    
-        // Push the new waypoint into the waypoints array
-        waypoints.push(newWaypoint);
-    
-        // Call functions to update the waypoints display list and redraw the path
-        updateWaypointsDisplay();
-        drawPath();
-    
-        // Optionally clear the input fields after adding the waypoint
-        document.getElementById('latitude').value = '';
-        document.getElementById('longitude').value = '';
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-    function updateWaypointsDisplay() {
-        var waypointList = document.querySelector('.waypoint-list');
-        waypointList.innerHTML = '';
-        if (currentLocationMarker) {
-            var currentLatLng = currentLocationMarker.getLatLng();
-            waypoints.forEach(function(wp, index) {
-                var waypointLatLng = L.latLng(wp.lat, wp.lng);
-                var distance = currentLatLng.distanceTo(waypointLatLng) / 1000;
-                distance = distance.toFixed(2);
-                waypointList.innerHTML += '<li>Waypoint ' + (index + 1) + ': ' + wp.lat + ', ' + wp.lng +
-                                          '. It is ' + distance + ' km away</li>';
-            });
-        }
-    }
-
-    function drawPath() {
-        pathPolylines.forEach(function(polyline) {
-            map.removeLayer(polyline);
-        });
-        pathPolylines = [];
-
-        if (currentLocationMarker) {
-            var currentLatLng = currentLocationMarker.getLatLng();
-
-            waypoints.forEach(function(point) {
-                var waypointLatLng = L.latLng(point.lat, point.lng);
-                var polyline = L.polyline([currentLatLng, waypointLatLng], { color: 'red' });
-                polyline.addTo(map);
-                pathPolylines.push(polyline);
-            });
-
-            if (waypoints.length > 0) {
-                var group = new L.featureGroup(pathPolylines);
-                map.fitBounds(group.getBounds());
-            }
-        }
-    }
+legend.addTo(map);
