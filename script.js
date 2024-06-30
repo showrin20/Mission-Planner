@@ -6,12 +6,12 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-// Function to generate random latitude and longitude within clusters around a specific range
-function getRandomLatLng(clusterCenter, clusterRadius) {
-    var angle = Math.random() * Math.PI * 2;
-    var radius = clusterRadius * Math.sqrt(Math.random());
-    var lat = clusterCenter.lat + radius * Math.cos(angle);
-    var lng = clusterCenter.lng + radius * Math.sin(angle);
+// Function to generate random latitude and longitude within a specific small range
+function getRandomLatLng() {
+    // Latitude range around Bhola Island: 22.42 to 22.52
+    // Longitude range around Bhola Island: 90.65 to 90.75
+    var lat = 22.42 + (Math.random() * (22.52 - 22.42));
+    var lng = 90.65 + (Math.random() * (90.75 - 90.65));
     return { lat: lat, lng: lng };
 }
 
@@ -37,32 +37,24 @@ function getColor(risk, impact) {
     }
 }
 
-// Define clusters with their centers and radius
-var clusters = [
-    { center: { lat: 22.47, lng: 90.70 }, radius: 0.02 },
-    { center: { lat: 22.44, lng: 90.68 }, radius: 0.02 },
-    { center: { lat: 22.49, lng: 90.72 }, radius: 0.02 }
-];
-
 // Generate random locations
 var locations = [];
-clusters.forEach(function(cluster) {
-    for (var i = 0; i < 20; i++) { // Generate 20 random locations per cluster
-        var randomLatLng = getRandomLatLng(cluster.center, cluster.radius);
-        var randomRiskImpact = getRandomRiskImpact();
-        locations.push({
-            lat: randomLatLng.lat,
-            lng: randomLatLng.lng,
-            risk: randomRiskImpact.risk,
-            impact: randomRiskImpact.impact
-        });
-    }
-});
+for (var i = 0; i < 50; i++) { // Generate 50 random locations
+    var randomLatLng = getRandomLatLng();
+    var randomRiskImpact = getRandomRiskImpact();
+    locations.push({
+        lat: randomLatLng.lat,
+        lng: randomLatLng.lng,
+        risk: randomRiskImpact.risk,
+        impact: randomRiskImpact.impact
+    });
+}
 
 // Add markers to the map
+var markers = [];
 locations.forEach(function(location) {
     var color = getColor(location.risk, location.impact);
-    L.circleMarker([location.lat, location.lng], {
+    var marker = L.circleMarker([location.lat, location.lng], {
         radius: 10, // Larger radius for bigger markers
         fillColor: color,
         color: color,
@@ -71,7 +63,26 @@ locations.forEach(function(location) {
         fillOpacity: 0.8
     }).addTo(map)
     .bindPopup(`Risk: ${location.risk}<br>Impact: ${location.impact}`);
+    markers.push(marker);
 });
+
+// Function to update the locations and properties of the markers
+function updateMarkers() {
+    markers.forEach(function(marker, index) {
+        var randomLatLng = getRandomLatLng();
+        var randomRiskImpact = getRandomRiskImpact();
+        var color = getColor(randomRiskImpact.risk, randomRiskImpact.impact);
+        marker.setLatLng([randomLatLng.lat, randomLatLng.lng])
+            .setStyle({
+                fillColor: color,
+                color: color
+            })
+            .bindPopup(`Risk: ${randomRiskImpact.risk}<br>Impact: ${randomRiskImpact.impact}`);
+    });
+}
+
+// Update the markers every 2 seconds
+setInterval(updateMarkers, 2000);
 
 // Add a legend to the map
 var legend = L.control({position: 'bottomright'});
