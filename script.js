@@ -1,106 +1,89 @@
-// Create a map centered at the coastal area of Bangladesh, for example, near Bhola Island
-var map = L.map('map').setView([22.47, 90.70], 13); // Adjust the coordinates and zoom level
+// Create a map centered along the Jamuna River, near Sariakandi, Bogura
+var map = L.map('map').setView([24.833, 89.624], 13); // Centered on the Jamuna River
 
 // Add OpenStreetMap tile layer
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-// Function to generate random latitude and longitude within a specific small range
+// Function to generate random latitude and longitude near the Jamuna River
 function getRandomLatLng() {
-    // Latitude range around Bhola Island: 22.42 to 22.52
-    // Longitude range around Bhola Island: 90.65 to 90.75
-    var lat = 22.42 + (Math.random() * (22.52 - 22.42));
-    var lng = 90.65 + (Math.random() * (90.75 - 90.65));
+    // Latitude range near the river: 24.82 to 24.85
+    // Longitude range near the river: 89.60 to 89.65
+    var lat = 24.82 + (Math.random() * (24.85 - 24.82));
+    var lng = 89.60 + (Math.random() * (89.65 - 89.60));
     return { lat: lat, lng: lng };
 }
 
-// Function to generate random risk and impact levels
-function getRandomRiskImpact() {
-    var risks = ['high', 'medium', 'low'];
-    var impacts = ['severe', 'moderate', 'low'];
+// Function to assign risk levels with colors for erosion-prone areas
+function getErosionRisk() {
+    var risks = ['high', 'medium', 'low']; // Erosion risks
     var risk = risks[Math.floor(Math.random() * risks.length)];
-    var impact = impacts[Math.floor(Math.random() * impacts.length)];
-    return { risk: risk, impact: impact };
+    return risk;
 }
 
-// Function to get color based on risk and impact
-function getColor(risk, impact) {
-    if (risk === 'high' && impact === 'severe') {
-        return 'red';
-    } else if (risk === 'medium' && impact === 'moderate') {
-        return 'orange';
-    } else if (risk === 'low' && impact === 'low') {
-        return 'green';
-    } else {
-        return 'blue'; // Default color
-    }
+// Function to determine marker color based on erosion risk
+function getColor(risk) {
+    if (risk === 'high') return 'red';     // High erosion risk
+    if (risk === 'medium') return 'green'; // Medium erosion risk
+    return 'blue';                         // Low erosion risk
 }
 
-// Generate random locations
+// Generate random erosion-prone locations
 var locations = [];
-for (var i = 0; i < 50; i++) { // Generate 50 random locations
+for (var i = 0; i < 50; i++) { // Generate 50 locations
     var randomLatLng = getRandomLatLng();
-    var randomRiskImpact = getRandomRiskImpact();
+    var erosionRisk = getErosionRisk();
     locations.push({
         lat: randomLatLng.lat,
         lng: randomLatLng.lng,
-        risk: randomRiskImpact.risk,
-        impact: randomRiskImpact.impact
+        risk: erosionRisk
     });
 }
 
-// Add markers to the map
+// Add markers to the map with appropriate colors and popups
 var markers = [];
-locations.forEach(function(location) {
-    var color = getColor(location.risk, location.impact);
+locations.forEach(function (location) {
+    var color = getColor(location.risk);
     var marker = L.circleMarker([location.lat, location.lng], {
-        radius: 10, // Larger radius for bigger markers
+        radius: 8, // Marker size
         fillColor: color,
         color: color,
         weight: 1,
         opacity: 1,
-        fillOpacity: 0.8
+        fillOpacity: 0.7
     }).addTo(map)
-    .bindPopup(`Risk: ${location.risk}<br>Impact: ${location.impact}`);
+    .bindPopup(`Erosion Risk: ${location.risk}`);
     markers.push(marker);
 });
 
-// Function to update the locations and properties of the markers
+// Function to update marker positions and erosion risks dynamically
 function updateMarkers() {
-    markers.forEach(function(marker, index) {
+    markers.forEach(function (marker) {
         var randomLatLng = getRandomLatLng();
-        var randomRiskImpact = getRandomRiskImpact();
-        var color = getColor(randomRiskImpact.risk, randomRiskImpact.impact);
+        var erosionRisk = getErosionRisk();
+        var color = getColor(erosionRisk);
         marker.setLatLng([randomLatLng.lat, randomLatLng.lng])
-            .setStyle({
-                fillColor: color,
-                color: color
-            })
-            .bindPopup(`Risk: ${randomRiskImpact.risk}<br>Impact: ${randomRiskImpact.impact}`);
+            .setStyle({ fillColor: color, color: color })
+            .bindPopup(`Erosion Risk: ${erosionRisk}`);
     });
 }
 
-// Update the markers every 2 seconds
-setInterval(updateMarkers, 2000);
+// Update markers every 3 seconds to simulate dynamic changes
+setInterval(updateMarkers, 3000);
 
-// Add a legend to the map
-var legend = L.control({position: 'bottomright'});
+// Add a legend to the map for erosion risk categories
+var legend = L.control({ position: 'bottomright' });
 
-legend.onAdd = function (map) {
+legend.onAdd = function () {
     var div = L.DomUtil.create('div', 'legend');
-    var grades = ['high-severe', 'medium-moderate', 'low-low'];
-    var labels = ['<strong>Risk & Impact</strong>'];
-    var colors = {
-        'high-severe': 'red',
-        'medium-moderate': 'orange',
-        'low-low': 'green'
-    };
+    var grades = ['high', 'medium', 'low'];
+    var labels = ['<strong>Erosion Risk</strong>'];
+    var colors = { high: 'red', medium: 'green', low: 'blue' };
 
-    grades.forEach(function(grade) {
+    grades.forEach(function (grade) {
         labels.push(
-            '<i style="background:' + colors[grade] + '"></i> ' +
-            grade.replace('-', ' & ')
+            `<i style="background: ${colors[grade]}"></i> ${grade.charAt(0).toUpperCase() + grade.slice(1)}`
         );
     });
 
@@ -109,7 +92,3 @@ legend.onAdd = function (map) {
 };
 
 legend.addTo(map);
-
-
-
-

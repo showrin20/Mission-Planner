@@ -60,7 +60,7 @@
     <div id="map"></div>
 
     <script>
-        // Initialize the map and set its view on the Jamuna River with a zoom level.
+        // Initialize the map and set its view on the Jamuna River.
         var map = L.map('map').setView([24.4625, 89.6875], 13);
 
         // Add OpenStreetMap tiles.
@@ -68,114 +68,104 @@
             maxZoom: 19
         }).addTo(map);
 
-        // Define polygons for erosion zones with realistic shapes.
+        // Red (High Erosion) zones closer to the river.
         var highErosionZone1 = L.polygon([
-            [24.4140, 89.6800],
-            [24.4200, 89.6900],
-            [24.4100, 89.7000],
-            [24.4050, 89.6900]
+            [24.4600, 89.6850],
+            [24.4630, 89.6900],
+            [24.4570, 89.6950],
+            [24.4550, 89.6880]
         ], {
             color: 'red',
             fillColor: '#f03',
             fillOpacity: 0.5,
             weight: 2
-        }).addTo(map).bindPopup("<b>High Erosion Risk:</b> Significant land loss expected.");
+        }).addTo(map).bindPopup("<b>High Erosion Risk:</b> Land loss expected.");
 
         var highErosionZone2 = L.polygon([
-            [24.4550, 89.6700],
-            [24.4600, 89.6800],
-            [24.4500, 89.6850],
-            [24.4450, 89.6750]
+            [24.4250, 89.6750],
+            [24.4300, 89.6800],
+            [24.4200, 89.6850],
+            [24.4170, 89.6800]
         ], {
             color: 'red',
             fillColor: '#f03',
             fillOpacity: 0.5,
             weight: 2
-        }).addTo(map).bindPopup("<b>High Erosion Risk:</b> High risk along the riverbank.");
+        }).addTo(map).bindPopup("<b>High Erosion Risk:</b> Significant riverbank erosion.");
 
         var highErosionZone3 = L.polygon([
-            [24.3900, 89.7200],
-            [24.3950, 89.7300],
-            [24.3850, 89.7350],
-            [24.3800, 89.7250]
+            [24.3850, 89.7100],
+            [24.3900, 89.7150],
+            [24.3800, 89.7200],
+            [24.3770, 89.7150]
         ], {
             color: 'red',
             fillColor: '#f03',
             fillOpacity: 0.5,
             weight: 2
-        }).addTo(map).bindPopup("<b>High Erosion Risk:</b> Erosion-prone zone detected here.");
+        }).addTo(map).bindPopup("<b>High Erosion Risk:</b> Highly prone to erosion.");
 
+        // Yellow (Moderate Erosion) zones further from the river.
         var moderateErosionZone1 = L.polygon([
-            [24.3720, 89.6900],
-            [24.3770, 89.7000],
-            [24.3670, 89.7050],
-            [24.3620, 89.6950]
+            [24.4700, 89.7000],
+            [24.4750, 89.7100],
+            [24.4650, 89.7150],
+            [24.4600, 89.7050]
         ], {
             color: 'yellow',
             fillColor: 'yellow',
             fillOpacity: 0.5,
             weight: 2
-        }).addTo(map).bindPopup("<b>Moderate Erosion Risk:</b> Monitoring is recommended.");
+        }).addTo(map).bindPopup("<b>Moderate Erosion Risk:</b> Seasonal monitoring required.");
 
         var moderateErosionZone2 = L.polygon([
-            [24.4800, 89.7100],
-            [24.4850, 89.7200],
-            [24.4750, 89.7250],
-            [24.4700, 89.7150]
+            [24.4100, 89.6600],
+            [24.4150, 89.6700],
+            [24.4050, 89.6750],
+            [24.4000, 89.6650]
         ], {
             color: 'yellow',
             fillColor: 'yellow',
             fillOpacity: 0.5,
             weight: 2
-        }).addTo(map).bindPopup("<b>Moderate Erosion Risk:</b> Moderate risk due to seasonal changes.");
+        }).addTo(map).bindPopup("<b>Moderate Erosion Risk:</b> Moderate risk due to seasonal flows.");
 
         var moderateErosionZone3 = L.polygon([
-            [24.3600, 89.6750],
-            [24.3650, 89.6850],
-            [24.3550, 89.6900],
-            [24.3500, 89.6800]
+            [24.3500, 89.7000],
+            [24.3550, 89.7100],
+            [24.3450, 89.7150],
+            [24.3400, 89.7050]
         ], {
             color: 'yellow',
             fillColor: 'yellow',
             fillOpacity: 0.5,
             weight: 2
-        }).addTo(map).bindPopup("<b>Moderate Erosion Risk:</b> Another area of moderate risk.");
+        }).addTo(map).bindPopup("<b>Moderate Erosion Risk:</b> Monitoring recommended.");
 
+        // Green (Stable) zones farther from the river.
         var stableZone1 = L.polygon([
-            [24.5100, 89.6450],
-            [24.5150, 89.6550],
+            [24.5000, 89.6500],
             [24.5050, 89.6600],
-            [24.5000, 89.6500]
+            [24.4950, 89.6650],
+            [24.4900, 89.6550]
         ], {
             color: 'green',
             fillColor: 'green',
             fillOpacity: 0.5,
             weight: 2
-        }).addTo(map).bindPopup("<b>Stable Zone:</b> Little to no erosion.");
+        }).addTo(map).bindPopup("<b>Stable Zone:</b> Low erosion risk.");
 
         var stableZone2 = L.polygon([
-            [24.4700, 89.6400],
-            [24.4750, 89.6500],
-            [24.4650, 89.6550],
-            [24.4600, 89.6450]
+            [24.4550, 89.6400],
+            [24.4600, 89.6500],
+            [24.4500, 89.6550],
+            [24.4450, 89.6450]
         ], {
             color: 'green',
             fillColor: 'green',
             fillOpacity: 0.5,
             weight: 2
-        }).addTo(map).bindPopup("<b>Stable Zone:</b> Stable terrain detected.");
-
-        var stableZone3 = L.polygon([
-            [24.3500, 89.6100],
-            [24.3550, 89.6200],
-            [24.3450, 89.6250],
-            [24.3400, 89.6150]
-        ], {
-            color: 'green',
-            fillColor: 'green',
-            fillOpacity: 0.5,
-            weight: 2
-        }).addTo(map).bindPopup("<b>Stable Zone:</b> Relatively safe from erosion.");
+        }).addTo(map).bindPopup("<b>Stable Zone:</b> Safe from erosion.");
 
         // Fit map view to show all zones.
         map.fitBounds([
@@ -186,14 +176,13 @@
             moderateErosionZone2.getBounds(),
             moderateErosionZone3.getBounds(),
             stableZone1.getBounds(),
-            stableZone2.getBounds(),
-            stableZone3.getBounds()
+            stableZone2.getBounds()
         ]);
 
-        // Add a legend for color-coded erosion zones.
+        // Add a legend for the map.
         var legend = L.control({ position: 'bottomright' });
 
-        legend.onAdd = function (map) {
+        legend.onAdd = function () {
             var div = L.DomUtil.create('div', 'legend');
             div.innerHTML += '<h4>Erosion Zones</h4>';
             div.innerHTML += '<span style="background-color: red"></span> High Erosion<br>';
@@ -204,12 +193,12 @@
 
         legend.addTo(map);
 
-        // Add a concise explanation box on the map.
+        // Add an info box to the map.
         var info = L.control({ position: 'topright' });
 
-        info.onAdd = function (map) {
+        info.onAdd = function () {
             var div = L.DomUtil.create('div', 'info-box');
-            div.innerHTML = "<b>Jamuna River Erosion:</b> The Jamuna River is one of the most dynamic rivers in the world. Its rapid shifting and erosion along the banks significantly impact local communities";
+            div.innerHTML = "<b>Jamuna River Erosion:</b> The Jamuna River is highly dynamic, with severe bank erosion impacting communities along its path.";
             return div;
         };
 
