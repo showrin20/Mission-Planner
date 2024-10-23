@@ -6,20 +6,29 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-// Function to generate random latitude and longitude near the Jamuna River
+// Function to generate random latitude and longitude near but not inside the river
 function getRandomLatLng() {
-    // Latitude range near the river: 24.82 to 24.85
-    // Longitude range near the river: 89.60 to 89.65
-    var lat = 24.82 + (Math.random() * (24.85 - 24.82));
-    var lng = 89.60 + (Math.random() * (89.65 - 89.60));
+    let lat, lng;
+
+    do {
+        // Generate random coordinates around the riverbank area (narrower range)
+        lat = 24.82 + (Math.random() * (24.86 - 24.82));
+        lng = 89.58 + (Math.random() * (89.67 - 89.58));
+    } while (insideRiver(lat, lng)); // Keep generating until the point is not in the river
+
     return { lat: lat, lng: lng };
+}
+
+// Helper function to check if a point is inside the river region (approximate)
+function insideRiver(lat, lng) {
+    // Approximate river boundaries (adjust as needed to fine-tune)
+    return (lat > 24.825 && lat < 24.85 && lng > 89.61 && lng < 89.64);
 }
 
 // Function to assign risk levels with colors for erosion-prone areas
 function getErosionRisk() {
     var risks = ['high', 'medium', 'low']; // Erosion risks
-    var risk = risks[Math.floor(Math.random() * risks.length)];
-    return risk;
+    return risks[Math.floor(Math.random() * risks.length)];
 }
 
 // Function to determine marker color based on erosion risk
@@ -29,7 +38,7 @@ function getColor(risk) {
     return 'blue';                         // Low erosion risk
 }
 
-// Generate random erosion-prone locations
+// Generate random erosion-prone locations near the riverbanks
 var locations = [];
 for (var i = 0; i < 50; i++) { // Generate 50 locations
     var randomLatLng = getRandomLatLng();
